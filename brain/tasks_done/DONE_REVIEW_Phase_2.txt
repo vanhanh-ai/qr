@@ -1,0 +1,11 @@
+# PHASE 2 REVIEW: BACKEND & API INTEGRATION
+TARGET_FILES: GAS_Backend.js, index.html
+TASK_CONTEXT: Claude đã hoàn thành kết nối Google Sheets và bảo mật Token.
+LOGIC (Reviewer Agent):
+1. Kiểm tra tính toàn vẹn của mã nguồn trong `GAS_Backend.js`.
+2. Kiểm tra logic bảo mật `API_TOKEN` trong `index.html` xem có dễ bị lộ không.
+3. Chạy thử nghiệm giả lập (nếu có thể) hoặc đánh giá logic xử lý lỗi.
+4. Ghi báo cáo đánh giá vào phần RESULT bên dưới.
+5. Đưa ra 2-3 đề xuất tối ưu (nếu có).
+
+RESULT: (Reviewer Agent điền báo cáo và đề xuất vào đây)

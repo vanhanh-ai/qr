@@ -32,6 +32,7 @@ Các Sub-agent (thông qua các script như `claude-worker.ps1`, `copilot-worker
     - **Đổi tên & Di chuyển:** Đổi tên file thành `[TaskName].done.txt` và di chuyển sang thư mục `brain/tasks_done/`.
     - **Đồng bộ:** Tự động `git add`, `git commit`, `git push` để cập nhật trạng thái lên GitHub.
     - **Thông báo:** Phát âm thanh "Beep" tại máy tính để báo hiệu cho người dùng.
+    - **Cross-Agent Review:** Sau khi kết thúc một Giai đoạn (Phase), Lead AI (Architect) phải tạo một Task Review giao cho Model khác để đánh giá kết quả, ghi báo cáo đánh giá và đề xuất tối ưu.
 
 ## 4. Cấu trúc thư mục liên quan
 

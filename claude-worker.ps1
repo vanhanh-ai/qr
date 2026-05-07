@@ -1,45 +1,33 @@
-# Claude Worker Script (Safe Naming Version)
+# Claude Worker Script (Strict ID Version)
 # Updated by Antigravity
 
-Write-Host "--- Claude AI Worker Started (Safe Naming Mode) ---" -ForegroundColor Cyan
-
-if (!(Test-Path "brain/tasks_done")) { New-Item -ItemType Directory "brain/tasks_done" }
+Write-Host "--- Claude AI Worker Started (Strict ID Mode) ---" -ForegroundColor Cyan
 
 while ($true) {
-    # Quét các file có tiền tố WAIT_
-    $tasks = Get-ChildItem "brain/tasks_queue/WAIT_*.txt"
+    # CHỈ nhận các file có tiền tố WAIT_CLAUDE_
+    $tasks = Get-ChildItem "brain/tasks_queue/WAIT_CLAUDE_*.txt"
     
     if ($tasks.Count -gt 0) {
         foreach ($task in $tasks) {
-            $taskBaseName = $task.BaseName.Replace("WAIT_", "")
-            $workingName = "WORK_$taskBaseName.working"
+            $taskBaseName = $task.BaseName.Replace("WAIT_CLAUDE_", "")
+            $workingName = "WORK_CLAUDE_$taskBaseName.working"
             $workingPath = Join-Path $task.Directory.FullName $workingName
             
-            # Đổi tên sang WORK_
             Rename-Item -Path $task.FullName -NewName $workingName -ErrorAction SilentlyContinue
             
             if (Test-Path $workingPath) {
-                Write-Host "[EXEC] Processing: $taskBaseName" -ForegroundColor Yellow
+                Write-Host "[EXEC] Claude is processing: $taskBaseName" -ForegroundColor Yellow
                 $prompt = Get-Content $workingPath -Raw
-                
-                # Thực thi Claude Code
                 claude -p "$prompt"
                 
-                if ($LASTEXITCODE -eq 0) {
-                    $finalName = "DONE_$taskBaseName.txt"
-                    $finalPath = Join-Path "brain/tasks_done" $finalName
-                    Write-Host "[OK] Finished: $taskBaseName" -ForegroundColor Green
-                } else {
-                    $finalName = "FAIL_$taskBaseName.txt"
-                    $finalPath = Join-Path "brain/tasks_done" $finalName
-                    Write-Host "[FAIL] Error in: $taskBaseName" -ForegroundColor Red
-                }
+                $finalName = if ($LASTEXITCODE -eq 0) { "DONE_CLAUDE_$taskBaseName.txt" } else { "FAIL_CLAUDE_$taskBaseName.txt" }
+                $finalPath = Join-Path "brain/tasks_done" $finalName
                 
                 if (Test-Path $finalPath) { Remove-Item $finalPath }
                 Move-Item $workingPath $finalPath
                 
                 git add .
-                git commit -m "worker: finished $finalName"
+                git commit -m "worker(claude): finished $finalName"
                 git push origin master
                 [console]::beep(1000, 300)
             }
