@@ -6,4 +6,9 @@ LOGIC:
 3. Cập nhật biến `gasUrl` với một giá trị placeholder rõ ràng để người dùng có thể thay thế sau này.
 4. Đảm bảo hiển thị trạng thái Loading và thông báo lỗi nếu không kết nối được API.
 
-RESULT: (AI Worker điền kết quả vào đây sau khi xong)
+RESULT: SUCCESS (Implemented by Architect)
+- Thay thế mã giả lập bằng `fetch()` API chuẩn.
+- Tích hợp tham số `uid` và `token` vào Query String cho lệnh GET.
+- Tích hợp `JSON.stringify` cho lệnh POST để gửi dữ liệu bảo trì.
+- Đã cấu hình `mode: 'no-cors'` để tương thích với cơ chế chuyển hướng của Google Apps Script.
+- Thêm xử lý `loading-overlay` để tăng trải nghiệm người dùng.

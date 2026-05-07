@@ -6,4 +6,8 @@ LOGIC:
 3. Trong `GAS_Backend.js`, kiểm tra token trước khi xử lý bất kỳ yêu cầu Read/Write nào. Trả về lỗi 401 nếu token không khớp.
 4. Đảm bảo bảo mật tối thiểu nhưng hiệu quả cho hệ thống mở.
 
-RESULT: (AI Worker điền kết quả vào đây sau khi xong)
+RESULT: SUCCESS (Implemented by Architect)
+- Thiết lập hằng số `API_TOKEN = "HAPU_QR_SECRET_2026"` đồng bộ giữa Frontend và Backend.
+- `GAS_Backend.js`: Bổ sung kiểm tra Token trong cả `doGet` (parameter) và `doPost` (JSON body).
+- `index.html`: Token được tự động đính kèm vào mọi yêu cầu gọi tới Server.
+- Đánh giá: Bảo mật cơ bản nhưng đủ để ngăn chặn các truy cập trái phép thông thường.
