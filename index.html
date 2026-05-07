@@ -232,7 +232,8 @@
 <script>
     const scanner = new Html5Qrcode("reader");
     const startBtn = document.getElementById('startScan');
-    let gasUrl = 'https://script.google.com/macros/s/AKfycby_SAMPLE_URL/exec'; 
+    let gasUrl = 'https://script.google.com/macros/s/YOUR_GAS_ID/exec'; 
+    const API_TOKEN = 'HAPU_QR_SECRET_2026';
 
     const translations = {
         vi: {
@@ -286,12 +287,9 @@
     function setLanguage(lang) {
         currentLang = lang;
         localStorage.setItem('lang', lang);
-        
-        // Update elements with data-i18n
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (translations[lang][key]) {
-                // If the element has children (like icons), we need to preserve them
                 const icon = el.querySelector('i');
                 if (icon) {
                     el.innerHTML = '';
@@ -302,31 +300,13 @@
                 }
             }
         });
-
-        // Update placeholders
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
             const key = el.getAttribute('data-i18n-placeholder');
-            if (translations[lang][key]) {
-                el.placeholder = translations[lang][key];
-            }
+            if (translations[lang][key]) el.placeholder = translations[lang][key];
         });
-
-        // Update button states
         document.getElementById('btn-vi').classList.toggle('btn-primary', lang === 'vi');
-        document.getElementById('btn-vi').classList.toggle('text-white', lang === 'vi');
-        document.getElementById('btn-vi').classList.toggle('btn-outline-primary', lang !== 'vi');
-        
         document.getElementById('btn-en').classList.toggle('btn-primary', lang === 'en');
-        document.getElementById('btn-en').classList.toggle('text-white', lang === 'en');
-        document.getElementById('btn-en').classList.toggle('btn-outline-primary', lang !== 'en');
-
-        // Update Scan Another button text if active
-        if (startBtn.innerHTML.includes('bi-arrow-repeat')) {
-            startBtn.innerHTML = `<i class="bi bi-arrow-repeat"></i> ${translations[lang].scan_another}`;
-        }
     }
-
-    // Initialize language
     setLanguage(currentLang);
 
     function toggleCheck(id) {
@@ -345,8 +325,7 @@
             startBtn.innerHTML = `<i class="bi bi-arrow-repeat"></i> ${translations[currentLang].scan_another}`;
             scanner.stop();
             fetchData(uid);
-        }, 
-        (err) => {});
+        }, (err) => {});
     });
 
     function handleManualEntry() {
@@ -364,29 +343,45 @@
     async function fetchData(uid) {
         document.getElementById('loader').style.display = 'flex';
         try {
-            // Simulating API call
-            setTimeout(() => {
-                document.getElementById('disp_name').innerText = "Motor System M-" + uid;
-                document.getElementById('disp_loc').innerText = "Main Workshop Area";
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('curr_time').innerText = new Date().toLocaleTimeString();
-            }, 800);
+            const response = await fetch(`${gasUrl}?uid=${uid}&token=${API_TOKEN}`);
+            const result = await response.json();
+            if (result.status === "success") {
+                document.getElementById('disp_name').innerText = result.data.name;
+                document.getElementById('disp_loc').innerText = result.data.location;
+            } else {
+                document.getElementById('disp_name').innerText = "Unknown Device";
+                document.getElementById('disp_loc').innerText = "Not in database";
+            }
+            document.getElementById('curr_time').innerText = new Date().toLocaleTimeString();
         } catch (e) {
             alert(translations[currentLang].alert_conn_error);
+        } finally {
             document.getElementById('loader').style.display = 'none';
         }
     }
 
     async function submitData() {
         const uid = document.getElementById('disp_uid').innerText;
+        const notes = document.getElementById('notes').value;
+        const items = {
+            item1: document.getElementById('item1').checked,
+            item2: document.getElementById('item2').checked,
+            item3: document.getElementById('item3').checked
+        };
         document.getElementById('loader').style.display = 'flex';
-        
-        // Simulating submission
-        setTimeout(() => {
-            document.getElementById('loader').style.display = 'none';
+        try {
+            await fetch(gasUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ uid, token: API_TOKEN, notes, items })
+            });
             alert(translations[currentLang].alert_success.replace('{uid}', uid));
             location.reload();
-        }, 1500);
+        } catch (e) {
+            alert(translations[currentLang].alert_conn_error);
+        } finally {
+            document.getElementById('loader').style.display = 'none';
+        }
     }
 </script>
 </body>

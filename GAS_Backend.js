@@ -1,5 +1,5 @@
 /**
- * GOOGLE APPS SCRIPT - BACKEND FOR QR-UID SYSTEM
+ * GOOGLE APPS SCRIPT - BACKEND FOR QR-UID SYSTEM (SECURED)
  * 
  * Instructions:
  * 1. Create a Google Sheet.
@@ -10,9 +10,17 @@
  */
 
 const SHEET_ID = SpreadsheetApp.getActiveSpreadsheet().getId();
+const API_TOKEN = "HAPU_QR_SECRET_2026"; // Simple security token
 
 function doGet(e) {
+  const token = e.parameter.token;
   const uid = e.parameter.uid;
+
+  // Security Check
+  if (token !== API_TOKEN) {
+    return contentResponse({ status: "error", message: "Unauthorized access" });
+  }
+
   if (!uid) return contentResponse({ status: "error", message: "Missing UID" });
 
   const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Devices");
@@ -37,6 +45,12 @@ function doGet(e) {
 function doPost(e) {
   try {
     const params = JSON.parse(e.postData.contents);
+    
+    // Security Check
+    if (params.token !== API_TOKEN) {
+      return contentResponse({ status: "error", message: "Unauthorized access" });
+    }
+
     const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Logs");
     
     sheet.appendRow([
