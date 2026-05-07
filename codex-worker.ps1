@@ -1,12 +1,11 @@
-# Codex Worker Script (Safe Naming Version)
+# Codex Worker Script (Strict ID Version)
 # Updated by Antigravity
 
-Write-Host "--- Codex AI Worker Started (Safe Naming Mode) ---" -ForegroundColor Magenta
-
-if (!(Test-Path "brain/tasks_done")) { New-Item -ItemType Directory "brain/tasks_done" }
+Write-Host "--- Codex AI Worker Started (Strict ID Mode) ---" -ForegroundColor Magenta
 
 while ($true) {
-    $tasks = Get-ChildItem "brain/tasks_queue/WAIT_*.txt" | Where-Object { $_.Name -like "*ui*" -or $_.Name -like "*codex*" }
+    # CHỈ nhận các file có tiền tố WAIT_CODEX_ hoặc có chữ REVIEW
+    $tasks = Get-ChildItem "brain/tasks_queue/WAIT_*.txt" | Where-Object { $_.Name -like "*CODEX*" -or $_.Name -like "*REVIEW*" }
     
     if ($tasks.Count -gt 0) {
         foreach ($task in $tasks) {
@@ -17,7 +16,9 @@ while ($true) {
             Rename-Item -Path $task.FullName -NewName $workingName -ErrorAction SilentlyContinue
             
             if (Test-Path $workingPath) {
-                Write-Host "[EXEC] Codex Processing: $taskBaseName" -ForegroundColor Yellow
+                Write-Host "[EXEC] Codex is processing Review: $taskBaseName" -ForegroundColor Yellow
+                
+                # Thực hiện lệnh Codex/Reviewer CLI của bạn ở đây
                 
                 $finalName = "DONE_$taskBaseName.txt"
                 $finalPath = Join-Path "brain/tasks_done" $finalName
