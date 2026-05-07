@@ -1,0 +1,13 @@
+# TASK 001: GOOGLE APPS SCRIPT BACKEND COMPLETION
+TARGET_FILE: GAS_Backend.js
+PRE-REQUISITES:
+0. KIỂM TRA ĐĂNG NHẬP:
+   - AI Worker phải kiểm tra trạng thái GitHub (`gh auth status`). Nếu chưa đăng nhập, phải yêu cầu người dùng thực hiện `gh auth login`.
+   - AI Worker phải yêu cầu người dùng xác nhận tài khoản Google sẽ dùng để triển khai Google Sheets & GAS (đã đăng nhập trên trình duyệt).
+
+LOGIC:
+1. Hoàn thiện hàm `doGet(e)` để nhận `uid` từ tham số URL.
+2. Tra cứu thông tin (Name, Location) từ sheet "Devices".
+3. Hoàn thiện hàm `doPost(e)` để nhận dữ liệu bảo trì (UID, Checklist, Notes) và ghi vào sheet "Logs" kèm dấu thời gian.
+4. Trả về kết quả dưới dạng JSON: `{"status": "success", "data": {...}}`.
+5. Đảm bảo mã nguồn sạch, có comment tiếng Việt.

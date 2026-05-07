@@ -1,0 +1,7 @@
+# TASK 002: PREMIUM UI & ANIMATIONS REFINEMENT
+TARGET_FILE: index.html
+LOGIC:
+1. Nâng cấp CSS để các thẻ `.card-premium` có hiệu ứng Glassmorphism mạnh hơn (blur + border semi-transparent).
+2. Thêm hiệu ứng `animate.css` hoặc CSS Transitions cho quá trình hiện/ẩn `infoSection`.
+3. Tích hợp một thư viện thông báo Toast đơn giản (hoặc tự viết bằng CSS) để thay thế cho lệnh `alert()` mặc định.
+4. Tối ưu hóa bảng màu để mang lại cảm giác "High-end" (ví dụ: dùng các sắc độ Navy, Emerald và Gold nhẹ).
