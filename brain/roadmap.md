@@ -5,7 +5,8 @@
 - [x] Giao diện Premium (Multi-language, Manual Input).
 
 ## Giai đoạn 2: Kết nối Dữ liệu & Backend (In Progress)
-- [ ] Thiết lập Google Apps Script (GAS) để kết nối Google Sheets.
+- [x] Thiết lập Google Apps Script (GAS) để kết nối Google Sheets. (Done)
+- [x] Tối ưu hóa UI & Animations Premium. (Done)
 - [ ] Tích hợp API thực tế vào Frontend.
 - [ ] Bảo mật API đơn giản.
 

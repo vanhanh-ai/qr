@@ -1,0 +1,9 @@
+# TASK 003: REAL API INTEGRATION
+TARGET_FILE: index.html
+LOGIC:
+1. Sửa hàm `fetchData(uid)` để thực hiện lệnh gọi `fetch(gasUrl + '?uid=' + uid)`.
+2. Sửa hàm `submitData()` để gửi dữ liệu bảo trì bằng `fetch(gasUrl, { method: 'POST', body: formData })`.
+3. Cập nhật biến `gasUrl` với một giá trị placeholder rõ ràng để người dùng có thể thay thế sau này.
+4. Đảm bảo hiển thị trạng thái Loading và thông báo lỗi nếu không kết nối được API.
+
+RESULT: (AI Worker điền kết quả vào đây sau khi xong)

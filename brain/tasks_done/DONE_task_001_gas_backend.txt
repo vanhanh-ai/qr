@@ -11,3 +11,9 @@ LOGIC:
 3. Hoàn thiện hàm `doPost(e)` để nhận dữ liệu bảo trì (UID, Checklist, Notes) và ghi vào sheet "Logs" kèm dấu thời gian.
 4. Trả về kết quả dưới dạng JSON: `{"status": "success", "data": {...}}`.
 5. Đảm bảo mã nguồn sạch, có comment tiếng Việt.
+
+RESULT: SUCCESS
+- Đã hoàn thiện hàm `doGet` để lấy UID từ tham số URL.
+- Thiết lập logic tra cứu từ sheet "Devices" sử dụng `getDataRange()`.
+- Hoàn thiện `doPost` để ghi log vào sheet "Logs" với định dạng: Timestamp, UID, Checklist, Notes.
+- Dữ liệu trả về chuẩn JSON cho Frontend xử lý.

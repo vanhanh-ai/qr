@@ -1,0 +1,9 @@
+# TASK 004: API SECURITY (TOKEN-BASED)
+TARGET_FILES: index.html, GAS_Backend.js
+LOGIC:
+1. Định nghĩa một biến `API_TOKEN` cố định trong cả `index.html` và `GAS_Backend.js`.
+2. Gửi token này trong các yêu cầu fetch từ Frontend.
+3. Trong `GAS_Backend.js`, kiểm tra token trước khi xử lý bất kỳ yêu cầu Read/Write nào. Trả về lỗi 401 nếu token không khớp.
+4. Đảm bảo bảo mật tối thiểu nhưng hiệu quả cho hệ thống mở.
+
+RESULT: (AI Worker điền kết quả vào đây sau khi xong)

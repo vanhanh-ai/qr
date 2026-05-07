@@ -1,47 +1,49 @@
-# Claude Worker Script for MAS
-# Fixed by Antigravity
+# Claude Worker Script (Safe Naming Version)
+# Updated by Antigravity
 
-Write-Host "--- Claude AI Worker Started (Polling brain/tasks_queue) ---" -ForegroundColor Cyan
+Write-Host "--- Claude AI Worker Started (Safe Naming Mode) ---" -ForegroundColor Cyan
 
 if (!(Test-Path "brain/tasks_done")) { New-Item -ItemType Directory "brain/tasks_done" }
 
 while ($true) {
-    $tasks = Get-ChildItem "brain/tasks_queue/*.txt"
+    # Quét các file có tiền tố WAIT_
+    $tasks = Get-ChildItem "brain/tasks_queue/WAIT_*.txt"
     
     if ($tasks.Count -gt 0) {
         foreach ($task in $tasks) {
-            $taskName = $task.BaseName
-            $workingName = "$taskName.working"
+            $taskBaseName = $task.BaseName.Replace("WAIT_", "")
+            $workingName = "WORK_$taskBaseName.working"
             $workingPath = Join-Path $task.Directory.FullName $workingName
             
-            # Đổi tên file để đánh dấu đang xử lý
+            # Đổi tên sang WORK_
             Rename-Item -Path $task.FullName -NewName $workingName -ErrorAction SilentlyContinue
             
             if (Test-Path $workingPath) {
-                Write-Host "[WORKING] Starting task: $taskName" -ForegroundColor Yellow
+                Write-Host "[EXEC] Processing: $taskBaseName" -ForegroundColor Yellow
                 $prompt = Get-Content $workingPath -Raw
                 
-                Write-Host "[EXEC] Calling Claude Code..." -ForegroundColor Gray
-                # Thực thi lệnh Claude Code
+                # Thực thi Claude Code
                 claude -p "$prompt"
                 
-                # Di chuyển sang thư mục hoàn tất
-                $donePath = Join-Path "brain/tasks_done" "$taskName.done.txt"
-                if (Test-Path $donePath) { Remove-Item $donePath }
-                Move-Item $workingPath $donePath
+                if ($LASTEXITCODE -eq 0) {
+                    $finalName = "DONE_$taskBaseName.txt"
+                    $finalPath = Join-Path "brain/tasks_done" $finalName
+                    Write-Host "[OK] Finished: $taskBaseName" -ForegroundColor Green
+                } else {
+                    $finalName = "FAIL_$taskBaseName.txt"
+                    $finalPath = Join-Path "brain/tasks_done" $finalName
+                    Write-Host "[FAIL] Error in: $taskBaseName" -ForegroundColor Red
+                }
                 
-                # Đồng bộ Git
-                Write-Host "[GIT] Syncing results..." -ForegroundColor Blue
+                if (Test-Path $finalPath) { Remove-Item $finalPath }
+                Move-Item $workingPath $finalPath
+                
                 git add .
-                git commit -m "worker: completed task $taskName"
+                git commit -m "worker: finished $finalName"
                 git push origin master
-                
-                # Thông báo âm thanh
-                Write-Host "[SUCCESS] Task $taskName finished!" -ForegroundColor Green
-                [console]::beep(1000, 200)
-                [console]::beep(1500, 300)
+                [console]::beep(1000, 300)
             }
         }
     }
-    Start-Sleep -Seconds 10
+    Start-Sleep -Seconds 5
 }

@@ -1,9 +1,9 @@
 # Task Management
 
 ## Active Tasks
-- [ ] **Task 001**: Hoàn thiện GAS Backend (Assign to: Claude)
-- [ ] **Task 002**: Tích hợp API vào Frontend (Assign to: Claude)
-- [ ] **Task 003**: Tối ưu hóa UI & Animations (Assign to: Codex)
+- [ ] **Task 003**: Tích hợp API Frontend-Backend (Assign to: Claude)
+- [ ] **Task 004**: Thiết lập Bảo mật API (Assign to: Claude)
 
 ## Completed Tasks
-*(None yet)*
+- [x] **Task 001**: Hoàn thiện GAS Backend
+- [x] **Task **002**: Tối ưu hóa UI & Animations Premium
