@@ -1,0 +1,33 @@
+# BÁO CÁO TỔNG KẾT DỰ ÁN: UID-QR MAINTENANCE SYSTEM
+PROJECT: QR-UID Maintenance WebApp
+ARCHITECT: Antigravity (Google DeepMind Agent)
+DATE: 2026-05-10
+
+## 1. Kết quả đạt được:
+- **Hệ thống Frontend:** WebApp chạy trên nền tảng HTML5/CSS3/JS, tối ưu hóa cho di động, giao diện Glassmorphism cao cấp.
+- **Tính năng cốt lõi:**
+    - Quét mã QR UID tốc độ cao.
+    - Nhập UID thủ công.
+    - Đa ngôn ngữ (Tiếng Việt & Tiếng Anh).
+    - Offline Mode: Tự động lưu dữ liệu khi mất mạng và đồng bộ lại khi có kết nối.
+    - Phản hồi UX: Âm thanh Beep, Skeleton Loader, Toast Notifications.
+- **Hệ thống Backend:** Google Apps Script kết nối trực tiếp với Google Sheets.
+- **Bảo mật:** Xác thực qua Token (`HAPU_QR_SECRET_2026`).
+
+## 2. Thông số vận hành:
+- **Link ứng dụng:** https://vanhanh-ai.github.io/qr/
+- **Link Cơ sở dữ liệu:** Google Sheets (QR_Web_App_Backend).
+- **ID Google Apps Script:** AKfycbxHCyjtqy3fxejO65NlM8xDnZGZmgy3csuWe_Ec1WPowzcOMifU5dVoYV0hl4zbsJbj
+
+## 3. Hướng dẫn vận hành nhanh:
+1. **Thêm thiết bị:** Mở Google Sheet, tab `Devices`, nhập UID và thông tin thiết bị.
+2. **Thực hiện bảo trì:** Nhân viên mở link WebApp trên điện thoại, quét mã QR gắn trên thiết bị.
+3. **Kiểm tra nhật ký:** Dữ liệu sẽ tự động đổ về tab `Logs` trong Google Sheet.
+
+## 4. Đề xuất bảo trì lâu dài:
+- **Backup dữ liệu:** Nên định kỳ sao lưu file Google Sheet mỗi tháng một lần.
+- **Mở rộng:** Có thể tích hợp thêm tính năng chụp ảnh hiện trường gửi về Google Drive trong phiên bản tiếp theo.
+
+---
+Dự án đã hoàn thành tốt đẹp và sẵn sàng bàn giao.
+Xác nhận: Antigravity.
