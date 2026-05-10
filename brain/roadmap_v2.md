@@ -31,9 +31,17 @@ Mục tiêu: Chuyên nghiệp hóa đầu ra và bảo mật dữ liệu.
 - [ ] **Performance KPIs**: Tính toán tự động chỉ số MTTR (Thời gian sửa chữa trung bình) và MTBF (Thời gian giữa các lần hỏng).
 - [ ] **REVIEW & EVALUATION**: Kiểm tra và chạy thử thực tế Giai đoạn 8 để đảm bảo tính năng không có lỗi. (Assign to: Reviewer Agent)
 
-## Giai đoạn 9: Admin Portal (Giao diện Quản trị)
+## Giai đoạn 9: Phân quyền (RBAC) & Tối ưu Hiệu suất (Smart Preload)
+Mục tiêu: Đảm bảo khả năng mở rộng, bảo mật và tốc độ phản hồi tức thì (0.1s) trong khi vẫn duy trì kiến trúc miễn phí (GAS + Sheets).
+- [ ] **Login & Role-Based Access**: Màn hình đăng nhập cho nhân viên bằng mã PIN. Phân loại người dùng theo Tổ/Đội (Điện, Nước, Điều hòa, Quản lý).
+- [ ] **Smart Data Fetching**: Khi đăng nhập thành công, hệ thống chỉ tải dữ liệu (Danh sách thiết bị, Task) thuộc quyền hạn của Tổ đó từ Google Sheets.
+- [ ] **Local-First Architecture**: Lưu toàn bộ dữ liệu vừa tải vào `localStorage`. Khi quét QR, tìm kiếm dữ liệu trực tiếp tại Local (Tốc độ 0.01s) thay vì gọi API Google.
+- [ ] **Background Syncing**: Các báo cáo checklist mới sẽ được lưu cục bộ và đồng bộ ngầm lên Google Sheets để không làm gián đoạn người dùng.
+- [ ] **REVIEW & EVALUATION**: Đánh giá tốc độ truy vấn thực tế.
+
+## Giai đoạn 10: Admin Portal (Giao diện Quản trị)
 Mục tiêu: Xây dựng trung tâm điều hành cho Quản lý để nhập liệu và cấu hình hệ thống mà không cần chạm vào Google Sheets.
-- [ ] **Admin Authentication**: Chức năng đăng nhập bảo mật (Password/Mã PIN) dành riêng cho cấp quản lý.
+- [ ] **Admin Authentication**: Chức năng đăng nhập bảo mật dành riêng cho cấp quản lý.
 - [ ] **Device Data Entry (CRUD)**: Giao diện thêm mới, sửa, xóa thông tin thiết bị, tạo và in mã QR UID tự động.
 - [ ] **Task & Personnel Manager**: Giao diện giao việc (Assign) cho nhân viên/tổ nhóm thẳng vào Kanban. Thêm/sửa danh sách nhân viên.
 - [ ] **Checklist Builder**: Giao diện kéo thả để tự tạo các mẫu Checklist động mới cho các loại máy khác nhau.
