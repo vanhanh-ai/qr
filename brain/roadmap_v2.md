@@ -14,13 +14,14 @@ Mục tiêu: Chuyển từ bảo trì khắc phục sang bảo trì chủ độn
 - [ ] **Maintenance Calendar**: Giao diện lịch (Calendar View) để xem các công việc sắp tới.
 - [ ] **Checklist Templates**: Thư viện mẫu kiểm tra riêng biệt cho từng loại máy (Điều hòa, Thang máy, Hệ thống điện).
 
-## Giai đoạn 7: Quản lý Vật tư & Phân quyền
-Mục tiêu: Kiểm soát chi phí và vai trò người dùng.
-- [ ] **Basic Inventory**: Thêm Sheet "Phụ tùng" để theo dõi tồn kho vật tư thay thế cơ bản.
-- [ ] **Spare Parts Linkage**: Liên kết vật tư đã dùng vào nhật ký bảo trì để tính toán chi phí.
-- [ ] **Role-based UI**: Phân biệt giao diện cho Quản lý (Xem báo cáo) và Kỹ thuật viên (Thực hiện công việc).
+## Giai đoạn 7: Quản lý Nhân sự & Kanban (New)
+Mục tiêu: Quản lý nhân lực và điều hành công việc trực quan.
+- [ ] **Personnel Database**: Thêm Sheet "Nhân sự" để quản lý kỹ thuật viên theo từng tổ/đội.
+- [ ] **Kanban Board UI**: Xây dựng giao diện bảng Kanban (Todo, In Progress, Done) để theo dõi tiến độ công việc.
+- [ ] **Task Assignment**: Cho phép giao việc trực tiếp cho từng tổ hoặc từng cá nhân.
+- [ ] **Workload Analytics**: Báo cáo khối lượng công việc của từng tổ/nhân viên trên Dashboard.
 
-## Giai đoạn 8: Báo cáo & Audit Log
+## Giai đoạn 8: Quản lý Vật tư & Phân quyền
 Mục tiêu: Chuyên nghiệp hóa đầu ra và bảo mật dữ liệu.
 - [ ] **Automated Reports**: Xuất báo cáo bảo trì định kỳ sang file PDF hoặc Excel.
 - [ ] **Audit Log**: Ghi lại lịch sử chỉnh sửa hệ thống (Ai đã thay đổi thông tin thiết bị).
