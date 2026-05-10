@@ -31,6 +31,14 @@ Mục tiêu: Chuyên nghiệp hóa đầu ra và bảo mật dữ liệu.
 - [ ] **Performance KPIs**: Tính toán tự động chỉ số MTTR (Thời gian sửa chữa trung bình) và MTBF (Thời gian giữa các lần hỏng).
 - [ ] **REVIEW & EVALUATION**: Kiểm tra và chạy thử thực tế Giai đoạn 8 để đảm bảo tính năng không có lỗi. (Assign to: Reviewer Agent)
 
+## Giai đoạn 9: Admin Portal (Giao diện Quản trị)
+Mục tiêu: Xây dựng trung tâm điều hành cho Quản lý để nhập liệu và cấu hình hệ thống mà không cần chạm vào Google Sheets.
+- [ ] **Admin Authentication**: Chức năng đăng nhập bảo mật (Password/Mã PIN) dành riêng cho cấp quản lý.
+- [ ] **Device Data Entry (CRUD)**: Giao diện thêm mới, sửa, xóa thông tin thiết bị, tạo và in mã QR UID tự động.
+- [ ] **Task & Personnel Manager**: Giao diện giao việc (Assign) cho nhân viên/tổ nhóm thẳng vào Kanban. Thêm/sửa danh sách nhân viên.
+- [ ] **Checklist Builder**: Giao diện kéo thả để tự tạo các mẫu Checklist động mới cho các loại máy khác nhau.
+- [ ] **REVIEW & EVALUATION**: Kiểm tra tính năng phân quyền và nhập liệu của Admin Portal.
+
 ---
 **Lead Architect:** Antigravity
 **Infrastructure:** GitHub Pages + Google Apps Script + Google Sheets
