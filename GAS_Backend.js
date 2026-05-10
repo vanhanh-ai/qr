@@ -66,6 +66,59 @@ function doGet(e) {
     });
   }
 
+  // action=getWorkOrders — Return work orders list (filtered by assignedTo if role is Technician)
+  if (action === 'getWorkOrders') {
+    const role = e.parameter.role;
+    const username = e.parameter.username;
+
+    const woSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("WorkOrders");
+    if (!woSheet) return contentResponse({ status: "error", message: "WorkOrders sheet not found" });
+
+    const woData = woSheet.getDataRange().getValues();
+    const workOrders = [];
+    for (let i = 1; i < woData.length; i++) {
+      const wo = {
+        woId:        woData[i][0],
+        type:        woData[i][1],
+        priority:    woData[i][2],
+        status:      woData[i][3],
+        assetUID:    woData[i][4],
+        assignedTo:  woData[i][5],
+        dueDate:     woData[i][6],
+        description: woData[i][7],
+        partsUsed:   woData[i][8],
+        createdAt:   woData[i][9]
+      };
+      // Technicians only see their own assigned work orders
+      if (role === 'Technician' && username) {
+        if (String(wo.assignedTo).trim().toLowerCase() === String(username).trim().toLowerCase()) {
+          workOrders.push(wo);
+        }
+      } else {
+        workOrders.push(wo);
+      }
+    }
+    return contentResponse({ status: "success", workOrders: workOrders });
+  }
+
+  // action=getInventory — Return parts list from Inventory sheet
+  if (action === 'getInventory') {
+    const invSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Inventory");
+    if (!invSheet) return contentResponse({ status: "error", message: "Inventory sheet not found" });
+
+    const invData = invSheet.getDataRange().getValues();
+    const inventory = [];
+    const headers = invData[0] || [];
+    for (let i = 1; i < invData.length; i++) {
+      const item = {};
+      for (let j = 0; j < headers.length; j++) {
+        item[headers[j]] = invData[i][j];
+      }
+      inventory.push(item);
+    }
+    return contentResponse({ status: "success", inventory: inventory });
+  }
+
   if (!uid) return contentResponse({ status: "error", message: "Missing UID" });
 
   const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Devices");
@@ -115,8 +168,68 @@ function doPost(e) {
       return contentResponse({ status: "error", message: "Unauthorized access" });
     }
 
+    // action=createWO — Create a new Work Order with auto-generated WO_ID (WO-YYYYMM-NNNNN)
+    if (params.action === 'createWO') {
+      const woSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("WorkOrders");
+      if (!woSheet) return contentResponse({ status: "error", message: "WorkOrders sheet not found" });
+
+      // Build WO_ID: WO-YYYYMM-NNNNN based on last row count
+      const now = new Date();
+      const yyyymm = now.getFullYear().toString() +
+        String(now.getMonth() + 1).padStart(2, '0');
+      const lastRow = woSheet.getLastRow();
+      const seq = String(lastRow).padStart(5, '0'); // sequential based on total rows
+      const woId = 'WO-' + yyyymm + '-' + seq;
+
+      woSheet.appendRow([
+        woId,
+        params.type        || '',
+        params.priority    || 'Medium',
+        params.status      || 'New',
+        params.assetUID    || '',
+        params.assignedTo  || '',
+        params.dueDate     || '',
+        params.description || '',
+        params.partsUsed   || '',
+        now
+      ]);
+
+      // Write audit log entry
+      writeAuditLog(params.user || 'System', 'createWO', woId, 'Created new Work Order');
+
+      return contentResponse({ status: "success", woId: woId });
+    }
+
+    // action=updateWOStatus — Update status of an existing Work Order and log to AuditLog
+    if (params.action === 'updateWOStatus') {
+      if (!params.woId || !params.status) {
+        return contentResponse({ status: "error", message: "Missing woId or status" });
+      }
+
+      const woSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("WorkOrders");
+      if (!woSheet) return contentResponse({ status: "error", message: "WorkOrders sheet not found" });
+
+      const woData = woSheet.getDataRange().getValues();
+      let updated = false;
+      for (let i = 1; i < woData.length; i++) {
+        if (String(woData[i][0]).trim() === String(params.woId).trim()) {
+          woSheet.getRange(i + 1, 4).setValue(params.status); // Column D = Status
+          updated = true;
+          break;
+        }
+      }
+
+      if (!updated) return contentResponse({ status: "error", message: "Work Order not found" });
+
+      // Write audit log entry
+      const details = params.notes ? params.status + ' — ' + params.notes : params.status;
+      writeAuditLog(params.user || 'System', 'updateWOStatus', params.woId, details);
+
+      return contentResponse({ status: "success" });
+    }
+
     const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Logs");
-    
+
     sheet.appendRow([
       new Date(),
       params.uid,
@@ -147,4 +260,15 @@ function doPost(e) {
 function contentResponse(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// Write a row to the AuditLog sheet (columns: Timestamp, User, Action, Target, Details)
+function writeAuditLog(user, action, target, details) {
+  try {
+    const auditSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("AuditLog");
+    if (!auditSheet) return;
+    auditSheet.appendRow([new Date(), user, action, target, details]);
+  } catch (err) {
+    // Non-fatal: audit failure must not block the main operation
+  }
 }
