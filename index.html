@@ -103,6 +103,17 @@
             margin-bottom: 10px; animation: fadeInUp 0.4s;
         }
 
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--primary-grad); z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-card {
+            background: white; border-radius: 20px; padding: 40px 30px;
+            width: 90%; max-width: 400px; text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -110,7 +121,21 @@
 
 <div class="toast-container" id="toastBox"></div>
 
-<div class="app-shell">
+<!-- Login Overlay -->
+<div id="loginOverlay">
+    <div class="login-card">
+        <div class="logo-box mx-auto mb-3" style="width: 60px; height: 60px; font-size: 28px;"><i class="bi bi-shield-lock"></i></div>
+        <h3 class="fw-bold text-dark mb-1">UID Master</h3>
+        <p class="text-muted small mb-4">Enter PIN to access your workspace</p>
+        <input type="password" id="pinInput" class="form-control text-center fs-4 fw-bold mb-3" style="letter-spacing: 10px; border-radius: 12px; padding: 15px;" placeholder="••••" maxlength="6">
+        <button id="btnLogin" class="btn btn-primary w-100 py-3 rounded-pill fw-bold" onclick="doLogin()">
+            LOGIN <i class="bi bi-arrow-right ms-2"></i>
+        </button>
+        <div id="loginSpinner" class="spinner-border text-primary mt-3" style="display: none;" role="status"></div>
+    </div>
+</div>
+
+<div class="app-shell" id="appShell" style="display: none;">
     <div class="header-section">
         <div class="d-flex justify-content-end px-3 gap-2">
             <button class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="toggleCalendar()" id="btn-calendar">
@@ -266,7 +291,7 @@
 <script>
     const scanner = new Html5Qrcode("reader");
     const startBtn = document.getElementById('startScan');
-    let gasUrl = 'https://script.google.com/macros/s/AKfycby2auQL7-kJp2oumpzpdHJ61psVBtXmD1G3QGZJY00xkec6vPeF8futYrRlCouGARTc/exec'; 
+    let gasUrl = 'https://script.google.com/macros/s/AKfycbw8S84VsLHFMc5Gqal1Eq9CM2e_LjcDMIP9UY3ReciwIUdKMdA6osLSyaLYcN-mO0E3/exec'; 
     const API_TOKEN = 'HAPU_QR_SECRET_2026';
 
     const translations = {
@@ -408,24 +433,73 @@
         });
     }
 
+    async function doLogin() {
+        const pin = document.getElementById('pinInput').value;
+        if (!pin) { showToast("Vui lòng nhập mã PIN", "warning"); return; }
+        
+        document.getElementById('btnLogin').style.display = 'none';
+        document.getElementById('loginSpinner').style.display = 'inline-block';
+
+        try {
+            const res = await fetch(`${gasUrl}?action=login&pin=${pin}&token=${API_TOKEN}`);
+            const result = await res.json();
+            if (result.status === "success") {
+                // Store user and devices locally
+                localStorage.setItem('currentUser', JSON.stringify(result.user));
+                localStorage.setItem('localDevices', JSON.stringify(result.devices));
+                
+                // Hide login, show app
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('appShell').style.display = 'block';
+                showToast(`Xin chào ${result.user.name} (${result.user.role})`);
+            } else {
+                showToast(result.message || "Mã PIN không hợp lệ", "danger");
+                document.getElementById('btnLogin').style.display = 'block';
+                document.getElementById('loginSpinner').style.display = 'none';
+            }
+        } catch (e) {
+            showToast("Lỗi kết nối", "danger");
+            document.getElementById('btnLogin').style.display = 'block';
+            document.getElementById('loginSpinner').style.display = 'none';
+        }
+    }
+
+    // Check if already logged in
+    window.onload = () => {
+        const user = localStorage.getItem('currentUser');
+        if (user) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('appShell').style.display = 'block';
+        }
+    };
+
     async function fetchData(uid) {
         document.getElementById('infoSection').style.display = 'none';
         document.getElementById('skeletonLoader').style.display = 'block';
-        try {
-            const res = await fetch(`${gasUrl}?uid=${uid}&token=${API_TOKEN}`);
-            const result = await res.json();
-            if (result.status === "success") {
-                document.getElementById('disp_name').innerText = result.data.name;
-                document.getElementById('disp_loc').innerText = result.data.location;
-                // Render specific checklist if type exists, otherwise default
-                renderChecklist(result.data.name.toLowerCase().includes('điều hòa') ? 'hvac' : 'default');
-            } else {
-                renderChecklist('default');
+        
+        setTimeout(() => {
+            try {
+                // LOCAL SEARCH - Lightning Fast 0.01s
+                const localData = JSON.parse(localStorage.getItem('localDevices') || '[]');
+                const device = localData.find(d => d.uid === uid);
+                
+                if (device) {
+                    document.getElementById('disp_name').innerText = device.name;
+                    document.getElementById('disp_loc').innerText = device.location;
+                    renderChecklist(device.name.toLowerCase().includes('điều hòa') ? 'hvac' : 'default');
+                    
+                    document.getElementById('curr_time').innerText = new Date().toLocaleTimeString();
+                    document.getElementById('infoSection').style.display = 'block';
+                } else {
+                    showToast("Device not found in local cache", "warning");
+                    renderChecklist('default');
+                }
+            } catch (e) { 
+                showToast("Error reading local data", "danger"); 
+            } finally { 
+                document.getElementById('skeletonLoader').style.display = 'none'; 
             }
-            document.getElementById('curr_time').innerText = new Date().toLocaleTimeString();
-            document.getElementById('infoSection').style.display = 'block';
-        } catch (e) { showToast("Offline Mode Active", "warning"); }
-        finally { document.getElementById('skeletonLoader').style.display = 'none'; }
+        }, 300); // Artificial 300ms delay for smooth UI transition
     }
 
     async function submitData() {
