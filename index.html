@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
@@ -111,7 +112,10 @@
 
 <div class="app-shell">
     <div class="header-section">
-        <div class="d-flex justify-content-end px-3">
+        <div class="d-flex justify-content-end px-3 gap-2">
+            <button class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="toggleDashboard()" id="btn-dashboard">
+                <i class="bi bi-bar-chart-fill"></i> Dashboard
+            </button>
             <div class="btn-group btn-group-sm bg-white rounded-pill shadow-sm p-1">
                 <button class="btn btn-outline-primary border-0 rounded-pill px-3" onclick="setLanguage('vi')" id="btn-vi">VN</button>
                 <button class="btn btn-outline-primary border-0 rounded-pill px-3" onclick="setLanguage('en')" id="btn-en">EN</button>
@@ -123,6 +127,26 @@
     </div>
 
     <div id="reader"></div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="card-premium p-3 mb-4" style="display: none;">
+        <h5 class="fw-bold mb-3"><i class="bi bi-pie-chart"></i> Asset Status Overview</h5>
+        <canvas id="assetChart"></canvas>
+    </div>
+
+    <!-- Search & Filter Section -->
+    <div class="card-premium p-3 mb-4" id="searchSection" style="display: none;">
+        <h6 class="fw-bold mb-2">Advanced Search</h6>
+        <div class="input-group mb-2">
+            <input type="text" class="form-control" placeholder="Search by Name/UID..." id="searchInput">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Filter</button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#">All Status</a></li>
+                <li><a class="dropdown-item" href="#">Active</a></li>
+                <li><a class="dropdown-item" href="#">Needs Maintenance</a></li>
+            </ul>
+        </div>
+    </div>
 
     <div class="card-premium p-3 mb-4">
         <button class="btn-scan-main w-100" id="startScan" data-i18n="btn_scan">
@@ -255,6 +279,27 @@
     function handleManualEntry() {
         const uid = document.getElementById('manual_uid').value.trim();
         if (uid) { document.getElementById('disp_uid').innerText = uid; fetchData(uid); }
+    }
+
+    let chartInstance = null;
+    function toggleDashboard() {
+        const dash = document.getElementById('dashboardSection');
+        if (dash.style.display === 'none') {
+            dash.style.display = 'block';
+            if (!chartInstance) {
+                const ctx = document.getElementById('assetChart').getContext('2d');
+                chartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Maintained', 'Pending', 'Offline'],
+                        datasets: [{ data: [12, 5, 2], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'] }]
+                    },
+                    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+                });
+            }
+        } else {
+            dash.style.display = 'none';
+        }
     }
 
     async function fetchData(uid) {
