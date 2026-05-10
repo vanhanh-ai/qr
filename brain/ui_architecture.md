@@ -53,7 +53,7 @@ graph TD
 | **Màn hình Đăng nhập** | `#loginOverlay`, `#usernameInput`, `#passwordInput` | `doLogin()` | Google Sheets (`Users`) -> `localStorage` | `[index.html#loginOverlay]` |
 | **Chuyển ngôn ngữ (Login)** | `#loginLangToggle` | `setLanguage()` | Tĩnh (Static) | `[index.html#loginLangToggle]` |
 | **Thanh Tiêu đề (Header)** | `.header-section` | `toggleDashboard()`, `setLanguage()` | Tĩnh (Static) | `[index.html.header-section]` |
-| **Hồ sơ Nhân viên** | `#userBadge`, `#userNameDisplay`| `updateUI(user)` | `localStorage.getItem('currentUser')` | `[index.html#userBadge]` |
+| **Hồ sơ Nhân viên (Dropdown)** | `#userBadge`, `#userNameDisplay`, `#userRoleDisplay` | `updateUI(user)`, `doLogout()`, `setLanguage()` | `localStorage.getItem('currentUser')` | `[index.html#userBadge]` |
 | **Trạng thái Đồng bộ** | `#syncBadge` | `updateSyncStatus()` | `localStorage.getItem('offline_logs')` | `[index.html:updateSyncStatus]` |
 | **Camera Quét QR** | `#reader`, `#startScan` | `Html5Qrcode` library | Camera thiết bị | `[index.html#reader]` |
 | **Hiển thị Thiết bị** | `#infoSection`, `#disp_name` | `fetchData(uid)` | `localStorage.getItem('localDevices')` | `[index.html:fetchData]` |
