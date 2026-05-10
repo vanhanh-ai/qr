@@ -25,21 +25,40 @@ function doGet(e) {
 
   const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Devices");
   const data = sheet.getDataRange().getValues();
+  let deviceData = null;
   
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] == uid) {
-      return contentResponse({
-        status: "success",
-        data: {
-          uid: data[i][0],
-          name: data[i][1],
-          location: data[i][2]
-        }
-      });
+      deviceData = {
+        uid: data[i][0],
+        name: data[i][1],
+        location: data[i][2],
+        specs: data[i][3] || "N/A",
+        cycle: data[i][4] || 30,
+        nextMaintenance: data[i][5] || ""
+      };
+      break;
     }
   }
 
-  return contentResponse({ status: "not_found", message: "Device not found" });
+  if (!deviceData) return contentResponse({ status: "not_found", message: "Device not found" });
+
+  // Get recent history
+  const logSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Logs");
+  const logData = logSheet.getDataRange().getValues();
+  let history = [];
+  for (let i = logData.length - 1; i > 0; i--) {
+    if (logData[i][1] == uid) {
+      history.push({
+        date: logData[i][0],
+        notes: logData[i][3]
+      });
+      if (history.length >= 3) break;
+    }
+  }
+  deviceData.history = history;
+
+  return contentResponse({ status: "success", data: deviceData });
 }
 
 function doPost(e) {
@@ -60,6 +79,19 @@ function doPost(e) {
       params.notes,
       "Mobile User"
     ]);
+
+    // Update Next Maintenance Date based on Cycle
+    const devSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Devices");
+    const devData = devSheet.getDataRange().getValues();
+    for (let i = 1; i < devData.length; i++) {
+      if (devData[i][0] == params.uid) {
+        let cycle = devData[i][4] || 30; // Default to 30 days if not set
+        let nextDate = new Date();
+        nextDate.setDate(nextDate.getDate() + parseInt(cycle));
+        devSheet.getRange(i + 1, 6).setValue(nextDate); // Column F (6)
+        break;
+      }
+    }
 
     return contentResponse({ status: "success" });
   } catch (err) {
