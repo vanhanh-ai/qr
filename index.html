@@ -553,6 +553,7 @@
     function doLogout() {
         localStorage.removeItem('currentUser');
         localStorage.removeItem('localDevices');
+        localStorage.removeItem('localDevicesMap');
         localStorage.removeItem('localChecklists');
         localStorage.removeItem('localWorkOrders');
         localStorage.removeItem('offline_logs');
@@ -585,7 +586,12 @@
             const result = await res.json();
             if (result.status === "success") {
                 localStorage.setItem('currentUser', JSON.stringify(result.user));
-                localStorage.setItem('localDevices', JSON.stringify(result.devices));
+                
+                // OPTIMIZATION: Convert array to Object for O(1) Lookup
+                const deviceMap = {};
+                (result.devices || []).forEach(d => { deviceMap[d.uid] = d; });
+                localStorage.setItem('localDevicesMap', JSON.stringify(deviceMap));
+                
                 localStorage.setItem('localChecklists', JSON.stringify(result.checklists || []));
                 updateUI(result.user);
                 showToast(`Xin chào ${result.user.name} (${result.user.role})`);
@@ -613,29 +619,28 @@
         document.getElementById('infoSection').style.display = 'none';
         document.getElementById('skeletonLoader').style.display = 'block';
         
-        setTimeout(() => {
-            try {
-                // LOCAL SEARCH - Lightning Fast 0.01s
-                const localData = JSON.parse(localStorage.getItem('localDevices') || '[]');
-                const device = localData.find(d => d.uid === uid);
+        // NO DELAY for Pro Speed
+        try {
+            const deviceMap = JSON.parse(localStorage.getItem('localDevicesMap') || '{}');
+            const device = deviceMap[uid];
+            
+            if (device) {
+                document.getElementById('disp_name').innerText = device.name;
+                document.getElementById('disp_loc').innerText = device.location;
+                renderChecklist(device.name.toLowerCase().includes('điều hòa') ? 'hvac' : 'default');
                 
-                if (device) {
-                    document.getElementById('disp_name').innerText = device.name;
-                    document.getElementById('disp_loc').innerText = device.location;
-                    renderChecklist(device.name.toLowerCase().includes('điều hòa') ? 'hvac' : 'default');
-                    
-                    document.getElementById('curr_time').innerText = new Date().toLocaleTimeString();
-                    document.getElementById('infoSection').style.display = 'block';
-                } else {
-                    showToast("Device not found in local cache", "warning");
-                    renderChecklist('default');
-                }
-            } catch (e) { 
-                showToast("Error reading local data", "danger"); 
-            } finally { 
+                document.getElementById('curr_time').innerText = new Date().toLocaleTimeString();
+                document.getElementById('infoSection').style.display = 'block';
+                document.getElementById('skeletonLoader').style.display = 'none';
+            } else {
+                // If not found in map, try background fetch as fallback
+                showToast("UID " + uid + " không có trong bộ nhớ tạm", "warning");
                 document.getElementById('skeletonLoader').style.display = 'none'; 
             }
-        }, 300); // Artificial 300ms delay for smooth UI transition
+        } catch (e) { 
+            showToast("Lỗi truy xuất dữ liệu nhanh", "danger"); 
+            document.getElementById('skeletonLoader').style.display = 'none'; 
+        }
     }
 
     async function submitData() {
