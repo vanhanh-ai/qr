@@ -9,8 +9,23 @@
  * 5. Paste this code and Deploy as Web App (Execute as: Me, Access: Anyone).
  */
 
-const SHEET_ID = "1aK1KMrG5Bn4hYy-QSS5SAST_Xl4Ta_hCbVmqyHXJjUo";
-const API_TOKEN = "HAPU_QR_SECRET_2026"; // Simple security token
+// ==========================================
+// CONFIGURATION / CẤU HÌNH
+// ==========================================
+// Nếu dùng Script độc lập, hãy dán ID của Google Sheet vào đây.
+// Nếu Script được gắn trực tiếp vào Sheet (Container-bound), nó sẽ tự lấy ID.
+const MANUAL_SHEET_ID = "1aK1KMrG5Bn4hYy-QSS5SAST_Xl4Ta_hCbVmqyHXJjUo"; 
+const API_TOKEN = "HAPU_QR_SECRET_2026"; 
+
+// Tự động xác định SHEET_ID
+const SHEET_ID = (function() {
+  try {
+    return SpreadsheetApp.getActiveSpreadsheet().getId();
+  } catch (e) {
+    return MANUAL_SHEET_ID;
+  }
+})();
+// ==========================================
 
 function doGet(e) {
   const token = e.parameter.token;

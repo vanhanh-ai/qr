@@ -13,7 +13,11 @@ Hệ thống quản lý bảo trì thiết bị thông minh sử dụng mã QR U
 - **Backend**: Google Apps Script (GAS).
 - **Database**: Google Sheets.
 
-## Cài đặt
-1. Upload nội dung repo này lên GitHub.
-2. Bật GitHub Pages trong phần Settings.
-3. Cấu hình Google Apps Script (xem file docs/GAS_Setup.md).
+## Cài đặt & Chuyển giao
+Hệ thống được thiết kế để dễ dàng triển khai lại bởi bất kỳ ai. Vui lòng xem các hướng dẫn chi tiết sau:
+
+1. **[Hướng dẫn triển khai nhanh (Deploy Guide)](./docs/DEPLOY_GUIDE.md)**: Cách thiết lập hệ thống từ đầu trong 5 phút.
+2. **[Cấu trúc Database (Sheet Structure)](./docs/SHEET_STRUCTURE.md)**: Chi tiết cách thiết lập các bảng tính Google Sheets.
+
+## Giấy phép
+Dự án được phát hành dưới giấy phép mã nguồn mở MIT. Tự do sử dụng, chỉnh sửa và chia sẻ.
