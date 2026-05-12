@@ -4,19 +4,18 @@
 
 ## 1. Sheet: `Users`
 Dùng để quản lý tài khoản đăng nhập.
-- **Cột A**: `Username`
-- **Cột B**: `PIN` (Mật khẩu số)
-- **Cột C**: `Role` (Admin/User)
+| Username | PIN | Role |
+|----------|-----|------|
+| admin    | 1234| Admin|
+| technician| 5678| User |
 
 ## 2. Sheet: `Devices`
 Danh mục thiết bị/tài sản.
-- **Cột A**: `UID` (Mã định danh duy nhất)
-- **Cột B**: `Name` (Tên thiết bị)
-- **Cột C**: `Location` (Vị trí)
-- **Cột D**: `Specs` (Thông số kỹ thuật)
-- **Cột E**: `Cycle` (Chu kỳ bảo trì - số ngày)
-- **Cột F**: `NextMaintenance` (Ngày bảo trì tiếp theo)
-- **Cột G**: `Status` (Trạng thái hiện tại: IN/OUT)
+| UID | Name | Location | Specs | Cycle | NextMaintenance | Status |
+|-----|------|----------|-------|-------|-----------------|--------|
+| TB001| Máy nén khí | Tầng 1 - Khu A | 10HP, 8Bar | 30 | 2024-06-15 | IN |
+| TB002| Điều hòa LG | Phòng Server | 24000 BTU | 90 | 2024-08-10 | IN |
+| TB003| Xe nâng tay | Kho vật tư | Tải 2.5T | 180 | 2024-12-01 | OUT |
 
 ## 3. Sheet: `Logs`
 Nhật ký bảo trì và lịch sử Nhập/Xuất.
@@ -29,8 +28,6 @@ Nhật ký bảo trì và lịch sử Nhập/Xuất.
 
 ## 4. Sheet: `Checklists`
 Cấu hình các đầu việc kiểm tra động.
-- **Cột A**: `Type` (Loại thiết bị: default, hvac, v.v.)
-- **Cột B**: `ID` (Mã đầu việc: c1, c2...)
 - **Cột C**: `Title` (Tên đầu việc)
 - **Cột D**: `Description` (Mô tả chi tiết)
 
