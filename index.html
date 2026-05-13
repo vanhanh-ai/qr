@@ -140,13 +140,6 @@
         <button id="btnLogin" class="btn btn-primary w-100 py-3 rounded-pill fw-bold" onclick="doLogin()">
             ĐĂNG NHẬP <i class="bi bi-box-arrow-in-right ms-2"></i>
         </button>
-        <div class="mt-4 text-center">
-            <hr class="opacity-25">
-            <p class="text-muted small">Chưa có hệ thống? Hãy khám phá ngay:</p>
-            <button class="btn btn-outline-secondary btn-sm rounded-pill px-4" onclick="enterDemoMode()">
-                <i class="bi bi-eye-fill me-1"></i> Ghé thăm bản Demo
-            </button>
-        </div>
         <div id="loginSpinner" class="spinner-border text-primary mt-3" style="display: none;" role="status"></div>
     </div>
 </div>
@@ -679,28 +672,6 @@
         localStorage.setItem('localChecklists', JSON.stringify(demoChecklists));
         
         // Build map
-        const map = {}; demoDevices.forEach(d => map[d.uid] = d);
-        localStorage.setItem('localDevicesMap', JSON.stringify(map));
-
-        showToast("Đang vào chế độ Demo...", "info");
-        setTimeout(() => location.reload(), 1000);
-    }
-
-    function enterDemoMode() {
-        const demoUser = { name: "Demo User", role: "Admin" };
-        const demoDevices = [
-            { uid: "TB001", name: "Máy nén khí Demo", location: "Khu A", specs: "10HP", cycle: 30, status: "IN" },
-            { uid: "TB002", name: "Điều hòa LG Demo", location: "Phòng Server", specs: "24k BTU", cycle: 90, status: "IN" }
-        ];
-        const demoChecklists = [
-            { type: "default", id: "c1", title: "Kiểm tra nguồn", desc: "Nguồn điện ổn định" },
-            { type: "default", id: "c2", title: "Độ rung", desc: "Không có tiếng động lạ" }
-        ];
-
-        localStorage.setItem('currentUser', JSON.stringify(demoUser));
-        localStorage.setItem('localDevices', JSON.stringify(demoDevices));
-        localStorage.setItem('localChecklists', JSON.stringify(demoChecklists));
-        
         const map = {}; demoDevices.forEach(d => map[d.uid] = d);
         localStorage.setItem('localDevicesMap', JSON.stringify(map));
 
