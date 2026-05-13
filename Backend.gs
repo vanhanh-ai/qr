@@ -54,180 +54,78 @@ function doGet(e) {
   }
 
   try {
-    if (action === 'login') {
-    const pin = e.parameter.pin;
-    const user = e.parameter.user; // Đã sửa từ username thành user
-    if (!pin || !user) return contentResponse({ status: "error", message: "Missing credentials" });
+    switch (action) {
+      case 'ping':
+        return contentResponse({ status: "success", message: "Pong! Backend is live." });
 
-    const userSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Users");
-    if (!userSheet) return contentResponse({ status: "error", message: "Users sheet not found" });
-    const users = userSheet.getDataRange().getValues();
-    let userRole = null; let userName = null;
-    
-    // Check User + PIN (Users sheet: A=Username, B=PIN, C=Role)
-    for (let i = 1; i < users.length; i++) {
-      if (String(users[i][0]).trim().toLowerCase() === String(user).trim().toLowerCase() 
-          && String(users[i][1]) == String(pin)) {
-        userName = users[i][0];
-        userRole = users[i][2];
-        break;
-      }
-    }
+      case 'login':
+        const pin = e.parameter.pin;
+        const userParam = e.parameter.user;
+        if (!pin || !userParam) return contentResponse({ status: "error", message: "Missing credentials" });
 
-    if (!userRole) return contentResponse({ status: "error", message: "Sai tên đăng nhập hoặc mật khẩu" });
-
-    // Ghi log đăng nhập thành công
-    writeAuditLog(userName, "Login", "Web App", "Đăng nhập thành công");
-
-    // Preload devices
-    const devSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Devices");
-    const devData = devSheet.getDataRange().getValues();
-    let devices = [];
-    for (let i = 1; i < devData.length; i++) {
-      devices.push({
-        uid: devData[i][0],
-        name: devData[i][1],
-        location: devData[i][2],
-        specs: devData[i][3] || "N/A",
-        cycle: devData[i][4] || 30,
-        nextMaintenance: devData[i][5] || ""
-      });
-    }
-
-    // Preload checklists from "Checklists" sheet
-    const checkSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Checklists");
-    let checklists = [];
-    if (checkSheet) {
-      const checkData = checkSheet.getDataRange().getValues();
-      for (let i = 1; i < checkData.length; i++) {
-        checklists.push({
-          type: String(checkData[i][0]).trim().toLowerCase(),
-          id: checkData[i][1],
-          title: checkData[i][2],
-          desc: checkData[i][3]
-        });
-      }
-    }
-
-    if (action === 'getDeviceHistory') {
-      const logSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Logs");
-      const logData = logSheet.getDataRange().getValues();
-      let history = [];
-      
-      // Duyệt ngược từ cuối lên để lấy dữ liệu mới nhất
-      for (let i = logData.length - 1; i >= 1; i--) {
-        if (String(logData[i][1]) === String(uid)) {
-          history.push({
-            time: logData[i][0],
-            action: logData[i][2], // IN, OUT hoặc Checklist JSON
-            notes: logData[i][3],
-            user: logData[i][4]
-          });
+        const ss = SpreadsheetApp.openById(SHEET_ID);
+        const users = ss.getSheetByName("Users").getDataRange().getValues();
+        let userName = "", userRole = "";
+        
+        for (let i = 1; i < users.length; i++) {
+          if (String(users[i][0]).trim().toLowerCase() === String(userParam).trim().toLowerCase() 
+              && String(users[i][1]).trim() === String(pin).trim()) {
+            userName = users[i][0];
+            userRole = users[i][2];
+            break;
+          }
         }
-        if (history.length >= 5) break;
-      }
-      return contentResponse({ status: "success", history: history });
-    }
+        if (!userRole) return contentResponse({ status: "error", message: "Sai tên đăng nhập hoặc mật khẩu" });
+        
+        writeAuditLog(userName, "Login", "Web App", "Đăng nhập thành công");
+        
+        const devices = ss.getSheetByName("Devices").getDataRange().getValues().slice(1)
+          .map(r => ({ uid: r[0], name: r[1], location: r[2], specs: r[3], cycle: r[4], status: r[6] }));
+        const checkSheet = ss.getSheetByName("Checklists");
+        const checklists = checkSheet ? checkSheet.getDataRange().getValues().slice(1).map(r => ({ type: r[0], id: r[1], title: r[2], desc: r[3] })) : [];
 
-    return contentResponse({ 
-      status: "success", 
-      user: { name: userName, role: userRole },
-      devices: devices,
-      checklists: checklists
-    });
-  }
+        return contentResponse({ status: "success", user: { name: userName, role: userRole }, devices: devices, checklists: checklists });
 
-  // action=getWorkOrders — Return work orders list (filtered by assignedTo if role is Technician)
-  if (action === 'getWorkOrders') {
-    const role = e.parameter.role;
-    const username = e.parameter.username;
-
-    const woSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("WorkOrders");
-    if (!woSheet) return contentResponse({ status: "error", message: "WorkOrders sheet not found" });
-
-    const woData = woSheet.getDataRange().getValues();
-    const workOrders = [];
-    for (let i = 1; i < woData.length; i++) {
-      const wo = {
-        woId:        woData[i][0],
-        type:        woData[i][1],
-        priority:    woData[i][2],
-        status:      woData[i][3],
-        assetUID:    woData[i][4],
-        assignedTo:  woData[i][5],
-        dueDate:     woData[i][6],
-        description: woData[i][7],
-        partsUsed:   woData[i][8],
-        createdAt:   woData[i][9]
-      };
-      // Technicians only see their own assigned work orders
-      if (role === 'Technician' && username) {
-        if (String(wo.assignedTo).trim().toLowerCase() === String(username).trim().toLowerCase()) {
-          workOrders.push(wo);
+      case 'getDeviceHistory':
+        if (!uid) return contentResponse({ status: "error", message: "Missing UID" });
+        const historyLogs = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Logs").getDataRange().getValues();
+        let history = [];
+        for (let i = historyLogs.length - 1; i >= 1; i--) {
+          if (String(historyLogs[i][1]) === String(uid)) {
+            history.push({ time: historyLogs[i][0], action: historyLogs[i][2], notes: historyLogs[i][3], user: historyLogs[i][4] });
+          }
+          if (history.length >= 5) break;
         }
-      } else {
-        workOrders.push(wo);
-      }
+        return contentResponse({ status: "success", history: history });
+
+      case 'getWorkOrders':
+        const woData = SpreadsheetApp.openById(SHEET_ID).getSheetByName("WorkOrders").getDataRange().getValues();
+        const role = e.parameter.role;
+        const username = e.parameter.username;
+        const workOrders = woData.slice(1).map(r => ({
+          woId: r[0], type: r[1], priority: r[2], status: r[3], assetUID: r[4], assignedTo: r[5], dueDate: r[6], description: r[7]
+        })).filter(wo => (role !== 'Technician' || !username || String(wo.assignedTo).toLowerCase() === String(username).toLowerCase()));
+        return contentResponse({ status: "success", workOrders: workOrders });
+
+      case 'debug_get_users':
+        const debugData = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Users").getDataRange().getValues();
+        return contentResponse({ status: "success", users: debugData });
+
+      default:
+        // Default action: Get Single Device Data
+        if (!uid) return contentResponse({ status: "error", message: "Unknown action or Missing UID" });
+        const devSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Devices");
+        const devData = devSheet.getDataRange().getValues();
+        let deviceData = null;
+        for (let i = 1; i < devData.length; i++) {
+          if (String(devData[i][0]) === String(uid)) {
+            deviceData = { uid: devData[i][0], name: devData[i][1], location: devData[i][2], specs: devData[i][3], cycle: devData[i][4], next: devData[i][5] };
+            break;
+          }
+        }
+        if (!deviceData) return contentResponse({ status: "not_found", message: "Device not found" });
+        return contentResponse({ status: "success", data: deviceData });
     }
-    return contentResponse({ status: "success", workOrders: workOrders });
-  }
-
-  // action=getInventory — Return parts list from Inventory sheet
-  if (action === 'getInventory') {
-    const invSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Inventory");
-    if (!invSheet) return contentResponse({ status: "error", message: "Inventory sheet not found" });
-
-    const invData = invSheet.getDataRange().getValues();
-    const inventory = [];
-    const headers = invData[0] || [];
-    for (let i = 1; i < invData.length; i++) {
-      const item = {};
-      for (let j = 0; j < headers.length; j++) {
-        item[headers[j]] = invData[i][j];
-      }
-      inventory.push(item);
-    }
-    return contentResponse({ status: "success", inventory: inventory });
-  }
-
-  if (!uid) return contentResponse({ status: "error", message: "Missing UID" });
-
-  const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Devices");
-  const data = sheet.getDataRange().getValues();
-  let deviceData = null;
-  
-  for (let i = 1; i < data.length; i++) {
-    if (data[i][0] == uid) {
-      deviceData = {
-        uid: data[i][0],
-        name: data[i][1],
-        location: data[i][2],
-        specs: data[i][3] || "N/A",
-        cycle: data[i][4] || 30,
-        nextMaintenance: data[i][5] || ""
-      };
-      break;
-    }
-  }
-
-  if (!deviceData) return contentResponse({ status: "not_found", message: "Device not found" });
-
-  // Get recent history
-  const logSheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName("Logs");
-  const logData = logSheet.getDataRange().getValues();
-  let history = [];
-  for (let i = logData.length - 1; i > 0; i--) {
-    if (logData[i][1] == uid) {
-      history.push({
-        date: logData[i][0],
-        notes: logData[i][3]
-      });
-      if (history.length >= 3) break;
-    }
-  }
-  deviceData.history = history;
-
-  return contentResponse({ status: "success", data: deviceData });
   } catch (err) {
     return contentResponse({ status: "error", message: "Server Error (GET): " + err.toString() });
   }
